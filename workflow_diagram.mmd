@@ -1,0 +1,34 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#1e88e5','primaryTextColor':'#fff','primaryBorderColor':'#1565c0','lineColor':'#424242','secondaryColor':'#43a047','tertiaryColor':'#fff'}}}%%
+graph TD
+    Start([User Question]) --> preprocess[Preprocess<br/>Normalize question]
+    
+    preprocess --> scope_policy[Scope & Policy Check<br/>Validate request]
+    
+    scope_policy -->|Ambiguous| clarify[Clarifying Questions<br/>Ask for details]
+    scope_policy -->|Refused| finalize[Finalize Response<br/>Return answer]
+    scope_policy -->|Valid| schema_ground[Schema Grounding<br/>Identify relevant tables]
+    
+    clarify --> finalize
+    
+    schema_ground --> generate_sql[Generate SQL<br/>LLM creates query]
+    
+    generate_sql --> validate_sql[Validate SQL<br/>Check safety rules]
+    
+    validate_sql -->|Has Errors &<br/>Retries Left| fix_retry[Fix & Retry<br/>Analyze errors]
+    validate_sql -->|Valid| execute[Execute Query<br/>Run against DB]
+    
+    fix_retry --> generate_sql
+    
+    execute -->|Success| finalize
+    execute -->|Error &<br/>Retries Left| fix_retry
+    execute -->|Error &<br/>No Retries| finalize
+    
+    finalize --> End([Return:<br/>Answer + SQL + Chart])
+    
+    style Start fill:#1e88e5,stroke:#1565c0,stroke-width:3px,color:#fff
+    style End fill:#43a047,stroke:#2e7d32,stroke-width:3px,color:#fff
+    style generate_sql fill:#ff9800,stroke:#f57c00,stroke-width:2px
+    style validate_sql fill:#9c27b0,stroke:#7b1fa2,stroke-width:2px
+    style execute fill:#e91e63,stroke:#c2185b,stroke-width:2px
+    style fix_retry fill:#ff5722,stroke:#d84315,stroke-width:2px
+    style finalize fill:#43a047,stroke:#2e7d32,stroke-width:2px

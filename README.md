@@ -18,6 +18,26 @@ A LangGraph-based Text-to-SQL agent for pharmaceutical analytics, built with Fas
 
 ## Architecture
 
+### Workflow Overview
+
+The agent follows a sophisticated multi-stage workflow powered by LangGraph:
+
+![Workflow Diagram](workflow_diagram.png)
+
+The workflow includes:
+
+1. **Preprocess**: Normalize and clean the user question
+2. **Scope & Policy Check**: Validate request against guardrails (dump detection, sensitive data, ambiguity)
+3. **Clarifying Questions**: Ask for details if the question is ambiguous
+4. **Schema Grounding**: Identify relevant tables and columns
+5. **Generate SQL**: Use GPT-4 to create PostgreSQL query
+6. **Validate SQL**: Check against security rules (SELECT-only, table whitelist, blocked keywords)
+7. **Fix & Retry**: If validation or execution fails, retry with error feedback (max 3 attempts)
+8. **Execute Query**: Run the validated query against PostgreSQL in read-only mode
+9. **Finalize Response**: Generate natural language answer and Vega-Lite chart spec
+
+### Detailed Architecture
+
 ```
 User Question
     │
